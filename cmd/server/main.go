@@ -3,12 +3,15 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"pagina/internal/adapters/handlers"
 	"pagina/internal/adapters/ytdlp"
 	"pagina/internal/core/services"
 	"strings"
 )
+
+const cookiesPath = "/app/data/cookies.txt"
 
 func main() {
 	// 1. Adapters (Driven)
@@ -29,6 +32,13 @@ func main() {
 	http.HandleFunc("/download", httpHandler.HandleDownload)
 
 	log.Println("Server starting on port 8081...")
+
+	// Verify Cookies
+	if _, err := os.Stat(cookiesPath); err == nil {
+		log.Printf("SUCCESS: Cookie file detected at %s", cookiesPath)
+	} else {
+		log.Printf("INFO: No cookie file found at %s. Using automated bypass methods.", cookiesPath)
+	}
 
 	// Verify yt-dlp
 	out, err := exec.Command("/usr/bin/yt-dlp", "--version").Output()

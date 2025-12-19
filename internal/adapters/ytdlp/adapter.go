@@ -53,6 +53,8 @@ func (a *ytDlpAdapter) getBaseArgs() []string {
 	// Fallback to cookies if the file exists
 	if _, err := os.Stat(cookiesPath); err == nil {
 		args = append(args, "--cookies", cookiesPath)
+		// We could log here, but getBaseArgs is called often.
+		// Better to log once on startup in main.go.
 	}
 
 	return args
