@@ -44,17 +44,16 @@ func (a *ytDlpAdapter) getBaseArgs() []string {
 		"--no-check-certificates",
 		"--no-warnings",
 		"--force-ipv4",
+		"--ignore-config",
 		"--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
 	}
-
-	// Using the 'tv' client is often more effective than 'android' for some data-centers
-	args = append(args, "--extractor-args", "youtube:player-client=tv,android")
 
 	// Fallback to cookies if the file exists
 	if _, err := os.Stat(cookiesPath); err == nil {
 		args = append(args, "--cookies", cookiesPath)
-		// We could log here, but getBaseArgs is called often.
-		// Better to log once on startup in main.go.
+	} else {
+		// Only use 'tv' client if we don't have cookies, as it's more restrictive with formats
+		args = append(args, "--extractor-args", "youtube:player-client=tv,android")
 	}
 
 	return args
