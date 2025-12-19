@@ -26,8 +26,8 @@ FROM alpine:latest
 
 WORKDIR /app
 
-# Install runtime dependencies: FFmpeg and Python3 (for yt-dlp)
-RUN apk add --no-cache ffmpeg python3 curl ca-certificates mailcap && \
+# Install runtime dependencies: FFmpeg, Python3 and Node.js (required for yt-dlp to solve JS challenges)
+RUN apk add --no-cache ffmpeg python3 nodejs curl ca-certificates mailcap && \
     ln -sf /usr/bin/python3 /usr/bin/python
 
 # Install yt-dlp

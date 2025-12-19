@@ -46,8 +46,8 @@ func (a *ytDlpAdapter) getBaseArgs() []string {
 		"--force-ipv4",
 		"--ignore-config",
 		"--verbose",
-		// IOS is the current 'gold standard' for bypassing bot detection with cookies
-		"--extractor-args", "youtube:player-client=ios",
+		// Using 'web,ios,mweb' is the most robust set when supported by a JS runtime like Node.js
+		"--extractor-args", "youtube:player-client=web,ios,mweb",
 	}
 
 	// Use cookies if the file exists
