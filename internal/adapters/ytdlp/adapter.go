@@ -40,10 +40,15 @@ type ytDlpJSON struct {
 const cookiesPath = "/app/data/cookies.txt"
 
 func (a *ytDlpAdapter) getBaseArgs() []string {
-	args := []string{"--no-check-certificates", "--no-warnings"}
+	args := []string{
+		"--no-check-certificates",
+		"--no-warnings",
+		"--force-ipv4",
+		"--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+	}
 
-	// Tricking YouTube into thinking we are a mobile app often bypasses bot detection
-	args = append(args, "--extractor-args", "youtube:player-client=android,ios")
+	// Using the 'tv' client is often more effective than 'android' for some data-centers
+	args = append(args, "--extractor-args", "youtube:player-client=tv,android")
 
 	// Fallback to cookies if the file exists
 	if _, err := os.Stat(cookiesPath); err == nil {
