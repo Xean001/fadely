@@ -45,8 +45,9 @@ func (a *ytDlpAdapter) getBaseArgs() []string {
 		"--no-warnings",
 		"--force-ipv4",
 		"--ignore-config",
-		// Using ONLY 'ios' is currently the most powerful bypass for bot detection on VPS
-		"--extractor-args", "youtube:player-client=ios",
+		"--verbose", // Critical for debugging cookie loading
+		// Experimental combo currently working for many VPS users
+		"--extractor-args", "youtube:player-client=android_vr,web_embedded",
 	}
 
 	// Use cookies if the file exists
