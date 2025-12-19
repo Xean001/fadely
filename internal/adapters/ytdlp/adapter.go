@@ -45,9 +45,9 @@ func (a *ytDlpAdapter) getBaseArgs() []string {
 		"--no-warnings",
 		"--force-ipv4",
 		"--ignore-config",
-		"--verbose", // Critical for debugging cookie loading
-		// Experimental combo currently working for many VPS users
-		"--extractor-args", "youtube:player-client=android_vr,web_embedded",
+		"--verbose",
+		// IOS is the current 'gold standard' for bypassing bot detection with cookies
+		"--extractor-args", "youtube:player-client=ios",
 	}
 
 	// Use cookies if the file exists

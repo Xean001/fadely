@@ -35,7 +35,15 @@ func main() {
 
 	// Verify Cookies
 	if _, err := os.Stat(cookiesPath); err == nil {
-		log.Printf("SUCCESS: Cookie file detected at %s", cookiesPath)
+		content, _ := os.ReadFile(cookiesPath)
+		firstLine := ""
+		if len(content) > 0 {
+			firstLine = strings.Split(string(content), "\n")[0]
+		}
+		log.Printf("SUCCESS: Cookie file detected. Size: %d bytes. First line: %q", len(content), firstLine)
+		if !strings.Contains(firstLine, "Netscape") {
+			log.Printf("WARNING: Cookie file might be invalid! It should start with '# Netscape HTTP Cookie File'")
+		}
 	} else {
 		log.Printf("INFO: No cookie file found at %s. Using automated bypass methods.", cookiesPath)
 	}
