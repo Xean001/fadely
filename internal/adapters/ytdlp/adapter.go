@@ -39,7 +39,7 @@ type ytDlpJSON struct {
 
 func (a *ytDlpAdapter) GetVideo(url string) (*domain.VideoInfo, error) {
 	// yt-dlp -J --flat-playlist --no-playlist url
-	cmd := exec.Command("/usr/local/bin/yt-dlp", "-J", "--no-playlist", url)
+	cmd := exec.Command("/usr/bin/yt-dlp", "-J", "--no-playlist", url)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("yt-dlp error: %w", err)
@@ -86,7 +86,7 @@ func (a *ytDlpAdapter) GetVideo(url string) (*domain.VideoInfo, error) {
 
 func (a *ytDlpAdapter) GetPlaylist(url string) (*domain.PlaylistInfo, error) {
 	// yt-dlp -J --flat-playlist url
-	cmd := exec.Command("/usr/local/bin/yt-dlp", "-J", "--flat-playlist", url)
+	cmd := exec.Command("/usr/bin/yt-dlp", "-J", "--flat-playlist", url)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("yt-dlp error: %w", err)
@@ -154,7 +154,7 @@ func (a *ytDlpAdapter) Download(url, format, quality string) (string, error) {
 	// Force IP V4 often helps with blocks too
 	// args = append(args, "--force-ipv4")
 
-	cmd := exec.Command("/usr/local/bin/yt-dlp", args...)
+	cmd := exec.Command("/usr/bin/yt-dlp", args...)
 	// Pass stderr to log?
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return "", fmt.Errorf("download failed: %s, %w", string(out), err)

@@ -31,9 +31,9 @@ func main() {
 	log.Println("Server starting on port 8081...")
 
 	// Verify yt-dlp
-	out, err := exec.Command("/usr/local/bin/yt-dlp", "--version").Output()
+	out, err := exec.Command("/usr/bin/yt-dlp", "--version").Output()
 	if err != nil {
-		log.Printf("WARNING: yt-dlp not found at /usr/local/bin/yt-dlp: %v", err)
+		log.Printf("WARNING: yt-dlp not found at /usr/bin/yt-dlp: %v", err)
 	} else {
 		log.Printf("Found yt-dlp version: %s", strings.TrimSpace(string(out)))
 	}
