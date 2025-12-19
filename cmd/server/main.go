@@ -49,19 +49,20 @@ func main() {
 	}
 
 	// Verify yt-dlp
-	out, err := exec.Command("/usr/bin/yt-dlp", "--version").Output()
+	out, err := exec.Command("yt-dlp", "--version").Output()
 	if err != nil {
-		log.Printf("WARNING: yt-dlp not found at /usr/bin/yt-dlp: %v", err)
+		log.Printf("WARNING: yt-dlp not found in PATH: %v", err)
 	} else {
 		log.Printf("Found yt-dlp version: %s", strings.TrimSpace(string(out)))
 	}
 
 	// Verify Node.js (required for YouTube challenges)
+	nodePath, _ := exec.LookPath("node")
 	nodeOut, nodeErr := exec.Command("node", "--version").Output()
 	if nodeErr != nil {
-		log.Printf("WARNING: Node.js not found in PATH: %v. YouTube challenges might fail.", nodeErr)
+		log.Printf("WARNING: Node.js not found in PATH: %v", nodeErr)
 	} else {
-		log.Printf("Found Node.js version: %s", strings.TrimSpace(string(nodeOut)))
+		log.Printf("Found Node.js at %s. Version: %s", nodePath, strings.TrimSpace(string(nodeOut)))
 	}
 
 	if err := http.ListenAndServe(":8081", nil); err != nil {

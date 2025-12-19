@@ -26,13 +26,12 @@ FROM alpine:latest
 
 WORKDIR /app
 
-# Install runtime dependencies: FFmpeg, Python3 and Node.js (required for yt-dlp to solve JS challenges)
-RUN apk add --no-cache ffmpeg python3 nodejs curl ca-certificates mailcap && \
+# Install runtime dependencies: FFmpeg, Python3, Pip and Node.js
+RUN apk add --no-cache ffmpeg python3 py3-pip nodejs curl ca-certificates mailcap && \
     ln -sf /usr/bin/python3 /usr/bin/python
 
-# Install yt-dlp
-RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/bin/yt-dlp && \
-    chmod a+rx /usr/bin/yt-dlp
+# Install yt-dlp via pip for better environment integration
+RUN pip install --no-cache-dir --break-system-packages yt-dlp
 
 # Copy the binary from the builder stage
 COPY --from=builder /app/downtube .

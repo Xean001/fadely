@@ -46,9 +46,8 @@ func (a *ytDlpAdapter) getBaseArgs() []string {
 		"--force-ipv4",
 		"--ignore-config",
 		"--verbose",
-		// The 'tv' client is the most lenient with security tokens,
-		// and it works beautifully with Premium cookies to get high-quality formats.
-		"--extractor-args", "youtube:player-client=tv,android",
+		// 'android' is currently the most stable client that bypasses PO Token checks for most regions
+		"--extractor-args", "youtube:player-client=android,tv",
 	}
 
 	// Use cookies if the file exists
@@ -63,7 +62,7 @@ func (a *ytDlpAdapter) GetVideo(url string) (*domain.VideoInfo, error) {
 	baseArgs := a.getBaseArgs()
 	fullArgs := append(baseArgs, "-J", "--no-playlist", url)
 
-	cmd := exec.Command("/usr/bin/yt-dlp", fullArgs...)
+	cmd := exec.Command("yt-dlp", fullArgs...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("yt-dlp error: %s (%w)", string(output), err)
@@ -105,7 +104,7 @@ func (a *ytDlpAdapter) GetPlaylist(url string) (*domain.PlaylistInfo, error) {
 	baseArgs := a.getBaseArgs()
 	fullArgs := append(baseArgs, "-J", "--flat-playlist", url)
 
-	cmd := exec.Command("/usr/bin/yt-dlp", fullArgs...)
+	cmd := exec.Command("yt-dlp", fullArgs...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("yt-dlp error: %s (%w)", string(output), err)
@@ -161,7 +160,7 @@ func (a *ytDlpAdapter) Download(url, format, quality string) (string, error) {
 
 	args = append(args, url)
 
-	cmd := exec.Command("/usr/bin/yt-dlp", args...)
+	cmd := exec.Command("yt-dlp", args...)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return "", fmt.Errorf("download failed: %s, %w", string(out), err)
 	}
