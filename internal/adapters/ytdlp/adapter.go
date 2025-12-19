@@ -46,8 +46,9 @@ func (a *ytDlpAdapter) getBaseArgs() []string {
 		"--force-ipv4",
 		"--ignore-config",
 		"--verbose",
-		// Using 'web,ios,mweb' is the most robust set when supported by a JS runtime like Node.js
-		"--extractor-args", "youtube:player-client=web,ios,mweb",
+		// The 'tv' client is the most lenient with security tokens,
+		// and it works beautifully with Premium cookies to get high-quality formats.
+		"--extractor-args", "youtube:player-client=tv,android",
 	}
 
 	// Use cookies if the file exists
