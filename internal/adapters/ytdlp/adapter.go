@@ -63,6 +63,7 @@ func (a *ytDlpAdapter) GetVideo(url string) (*domain.VideoInfo, error) {
 	fullArgs := append(baseArgs, "-J", "--no-playlist", url)
 
 	cmd := exec.Command("yt-dlp", fullArgs...)
+	cmd.Env = append(os.Environ(), "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("yt-dlp error: %s (%w)", string(output), err)
@@ -105,6 +106,7 @@ func (a *ytDlpAdapter) GetPlaylist(url string) (*domain.PlaylistInfo, error) {
 	fullArgs := append(baseArgs, "-J", "--flat-playlist", url)
 
 	cmd := exec.Command("yt-dlp", fullArgs...)
+	cmd.Env = append(os.Environ(), "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("yt-dlp error: %s (%w)", string(output), err)
