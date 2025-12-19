@@ -45,13 +45,11 @@ func (a *ytDlpAdapter) getBaseArgs() []string {
 		"--no-warnings",
 		"--force-ipv4",
 		"--ignore-config",
+		// Using ONLY 'ios' is currently the most powerful bypass for bot detection on VPS
+		"--extractor-args", "youtube:player-client=ios",
 	}
 
-	// For data centers, emulating a mobile device is much safer than the web client
-	args = append(args, "--extractor-args", "youtube:player-client=android,ios")
-	args = append(args, "--user-agent", "com.google.android.youtube/19.29.37 (Linux; U; Android 11; en_US; Pixel 4) (gzip)")
-
-	// Fallback to cookies if the file exists
+	// Use cookies if the file exists
 	if _, err := os.Stat(cookiesPath); err == nil {
 		args = append(args, "--cookies", cookiesPath)
 	}
