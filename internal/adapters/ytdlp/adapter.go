@@ -38,11 +38,11 @@ type ytDlpJSON struct {
 }
 
 func (a *ytDlpAdapter) GetVideo(url string) (*domain.VideoInfo, error) {
-	// yt-dlp -J --flat-playlist --no-playlist url
-	cmd := exec.Command("/usr/bin/yt-dlp", "-J", "--no-playlist", url)
-	output, err := cmd.Output()
+	// yt-dlp -J --no-playlist url
+	cmd := exec.Command("/usr/bin/yt-dlp", "-J", "--no-playlist", "--no-check-certificates", "--no-warnings", url)
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("yt-dlp error: %w", err)
+		return nil, fmt.Errorf("yt-dlp error: %s (%w)", string(output), err)
 	}
 
 	var data ytDlpJSON
@@ -86,10 +86,10 @@ func (a *ytDlpAdapter) GetVideo(url string) (*domain.VideoInfo, error) {
 
 func (a *ytDlpAdapter) GetPlaylist(url string) (*domain.PlaylistInfo, error) {
 	// yt-dlp -J --flat-playlist url
-	cmd := exec.Command("/usr/bin/yt-dlp", "-J", "--flat-playlist", url)
-	output, err := cmd.Output()
+	cmd := exec.Command("/usr/bin/yt-dlp", "-J", "--flat-playlist", "--no-check-certificates", "--no-warnings", url)
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("yt-dlp error: %w", err)
+		return nil, fmt.Errorf("yt-dlp error: %s (%w)", string(output), err)
 	}
 
 	var data ytDlpJSON
