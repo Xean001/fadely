@@ -37,9 +37,27 @@ type ytDlpJSON struct {
 	Entries []ytDlpJSON `json:"entries"` // For playlists
 }
 
+const cookiesPath = "/app/data/cookies.txt"
+
+func (a *ytDlpAdapter) getBaseArgs() []string {
+	args := []string{"--no-check-certificates", "--no-warnings"}
+
+	// Tricking YouTube into thinking we are a mobile app often bypasses bot detection
+	args = append(args, "--extractor-args", "youtube:player-client=android,ios")
+
+	// Fallback to cookies if the file exists
+	if _, err := os.Stat(cookiesPath); err == nil {
+		args = append(args, "--cookies", cookiesPath)
+	}
+
+	return args
+}
+
 func (a *ytDlpAdapter) GetVideo(url string) (*domain.VideoInfo, error) {
-	// yt-dlp -J --no-playlist url
-	cmd := exec.Command("/usr/bin/yt-dlp", "-J", "--no-playlist", "--no-check-certificates", "--no-warnings", url)
+	baseArgs := a.getBaseArgs()
+	fullArgs := append(baseArgs, "-J", "--no-playlist", url)
+
+	cmd := exec.Command("/usr/bin/yt-dlp", fullArgs...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("yt-dlp error: %s (%w)", string(output), err)
@@ -60,22 +78,15 @@ func (a *ytDlpAdapter) GetVideo(url string) (*domain.VideoInfo, error) {
 		Formats:     []domain.VideoFormat{},
 	}
 
-	// Process formats
 	for _, f := range data.Formats {
-		// Filter out bad formats if needed, or map them
 		if f.VCodec != "none" {
 			label := f.FormatNote
 			if label == "" {
 				label = fmt.Sprintf("%dp", f.Height)
 			}
-			// Use Height as ITAG proxy or just FormatID if string
-			// Domain expects string label, int itag. WE need to store ID.
-			// We need to refactor domain to support string IDs or map hash.
-			// For now, we put height in itag.
-
 			info.Formats = append(info.Formats, domain.VideoFormat{
 				Label: label,
-				Itag:  f.Height, // Hack: using height as ID for sorting
+				Itag:  f.Height,
 				Type:  f.Ext,
 			})
 		}
@@ -85,8 +96,10 @@ func (a *ytDlpAdapter) GetVideo(url string) (*domain.VideoInfo, error) {
 }
 
 func (a *ytDlpAdapter) GetPlaylist(url string) (*domain.PlaylistInfo, error) {
-	// yt-dlp -J --flat-playlist url
-	cmd := exec.Command("/usr/bin/yt-dlp", "-J", "--flat-playlist", "--no-check-certificates", "--no-warnings", url)
+	baseArgs := a.getBaseArgs()
+	fullArgs := append(baseArgs, "-J", "--flat-playlist", url)
+
+	cmd := exec.Command("/usr/bin/yt-dlp", fullArgs...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("yt-dlp error: %s (%w)", string(output), err)
@@ -117,33 +130,22 @@ func (a *ytDlpAdapter) GetPlaylist(url string) (*domain.PlaylistInfo, error) {
 }
 
 func (a *ytDlpAdapter) Download(url, format, quality string) (string, error) {
-	// Quality here is likely a height string "1080p" or "1080"
-	// Format is "mp4" or "mp3"
-
-	// Construct yt-dlp format selector
-	// bestvideo[height<=1080]+bestaudio/best[height<=1080]
-
-	var args []string
-	args = append(args, url)
-
-	// Use temp file for output logic in service
 	tempFile, err := os.CreateTemp("", "ytdlp-*.mp4")
 	if err != nil {
 		return "", err
 	}
-	tempFile.Close() // yt-dlp will overwrite
+	tempFile.Close()
 	os.Remove(tempFile.Name())
 
-	args = append(args, "-o", tempFile.Name())
+	baseArgs := a.getBaseArgs()
+	args := append(baseArgs, "-o", tempFile.Name())
 
 	if format == "mp3" {
 		args = append(args, "-x", "--audio-format", "mp3")
 	} else {
 		args = append(args, "--merge-output-format", "mp4")
 		if quality != "" {
-			// Clean quality string "1080p" -> "1080"
 			h := strings.TrimSuffix(quality, "p")
-			// "bestvideo[height<=1080]+bestaudio/best[height<=1080]"
 			fSelect := fmt.Sprintf("bestvideo[height<=%s]+bestaudio/best[height<=%s]", h, h)
 			args = append(args, "-f", fSelect)
 		} else {
@@ -151,30 +153,17 @@ func (a *ytDlpAdapter) Download(url, format, quality string) (string, error) {
 		}
 	}
 
-	// Force IP V4 often helps with blocks too
-	// args = append(args, "--force-ipv4")
+	args = append(args, url)
 
 	cmd := exec.Command("/usr/bin/yt-dlp", args...)
-	// Pass stderr to log?
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return "", fmt.Errorf("download failed: %s, %w", string(out), err)
 	}
 
-	// Find the actual file (yt-dlp might change extension if merged)
-	// If mp3, it will be .mp3
-	// If mp4, .mp4
-	// We trusted the output template? No, yt-dlp appends extension.
-	// Wait, if we provided full path in -o, it usually respects it if extension matches.
-	// Safe bet: check file existence.
-
-	// Adjust extension expectation
 	finalPath := tempFile.Name()
 	if format == "mp3" && !strings.HasSuffix(finalPath, ".mp3") {
-		finalPath += ".mp3" // Just guess, but usually yt-dlp handles -o specially.
-		// Better: use -o with extension -o path.%(ext)s is safer but harder to predict path.
-		// Let's rely on explicit path.
+		finalPath += ".mp3"
 	}
 
-	// Quick glob check if exact name missing
 	return finalPath, nil
 }
