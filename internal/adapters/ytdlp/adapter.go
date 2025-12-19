@@ -47,16 +47,13 @@ func (a *ytDlpAdapter) getBaseArgs() []string {
 		"--ignore-config",
 	}
 
+	// For data centers, emulating a mobile device is much safer than the web client
+	args = append(args, "--extractor-args", "youtube:player-client=android,ios")
+	args = append(args, "--user-agent", "com.google.android.youtube/19.29.37 (Linux; U; Android 11; en_US; Pixel 4) (gzip)")
+
 	// Fallback to cookies if the file exists
 	if _, err := os.Stat(cookiesPath); err == nil {
 		args = append(args, "--cookies", cookiesPath)
-		// When we have cookies, the "web" or "web_embedded" client is the most reliable
-		args = append(args, "--extractor-args", "youtube:player-client=web_embedded,web")
-	} else {
-		// Only use 'tv' client if we don't have cookies, as it's more restrictive with formats
-		args = append(args, "--extractor-args", "youtube:player-client=tv,android")
-		// Use a standard UA only as fallback without cookies
-		args = append(args, "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36")
 	}
 
 	return args
