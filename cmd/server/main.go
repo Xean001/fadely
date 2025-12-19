@@ -64,6 +64,7 @@ func main() {
 	} else {
 		log.Printf("Found Node.js at %s. Version: %s", nodePath, strings.TrimSpace(string(nodeOut)))
 	}
+	log.Printf("Current system PATH: %s", os.Getenv("PATH"))
 
 	if err := http.ListenAndServe(":8081", nil); err != nil {
 		log.Fatal(err)
