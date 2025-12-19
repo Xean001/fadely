@@ -161,6 +161,7 @@ func (a *ytDlpAdapter) Download(url, format, quality string) (string, error) {
 	args = append(args, url)
 
 	cmd := exec.Command("yt-dlp", args...)
+	cmd.Env = append(os.Environ(), "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin")
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return "", fmt.Errorf("download failed: %s, %w", string(out), err)
 	}
