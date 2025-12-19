@@ -46,8 +46,8 @@ func (a *ytDlpAdapter) getBaseArgs() []string {
 		"--force-ipv4",
 		"--ignore-config",
 		"--verbose",
-		// 'android' is currently the most stable client that bypasses PO Token checks for most regions
-		"--extractor-args", "youtube:player-client=android,tv",
+		// 'ios' is currently the most robust client for Premium session persistence
+		"--extractor-args", "youtube:player-client=ios",
 	}
 
 	// Use cookies if the file exists
