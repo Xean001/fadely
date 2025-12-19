@@ -56,6 +56,14 @@ func main() {
 		log.Printf("Found yt-dlp version: %s", strings.TrimSpace(string(out)))
 	}
 
+	// Verify Node.js (required for YouTube challenges)
+	nodeOut, nodeErr := exec.Command("node", "--version").Output()
+	if nodeErr != nil {
+		log.Printf("WARNING: Node.js not found in PATH: %v. YouTube challenges might fail.", nodeErr)
+	} else {
+		log.Printf("Found Node.js version: %s", strings.TrimSpace(string(nodeOut)))
+	}
+
 	if err := http.ListenAndServe(":8081", nil); err != nil {
 		log.Fatal(err)
 	}
