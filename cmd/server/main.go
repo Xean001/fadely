@@ -3,19 +3,17 @@ package main
 import (
 	"log"
 	"net/http"
-	"pagina/internal/adapters/ffmpeg"
 	"pagina/internal/adapters/handlers"
-	"pagina/internal/adapters/youtube"
+	"pagina/internal/adapters/ytdlp"
 	"pagina/internal/core/services"
 )
 
 func main() {
 	// 1. Adapters (Driven)
-	ytRepo := youtube.NewYouTubeRepository()
-	mediaProc := ffmpeg.NewFFmpegProcessor()
+	ytRepo := ytdlp.NewYtDlpAdapter()
 
 	// 2. Core Service
-	dlService := services.NewDownloaderService(ytRepo, mediaProc)
+	dlService := services.NewDownloaderService(ytRepo)
 
 	// 3. Adapter (Driving)
 	httpHandler := handlers.NewHTTPHandler(dlService)

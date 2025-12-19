@@ -26,8 +26,12 @@ FROM alpine:latest
 
 WORKDIR /app
 
-# Install runtime dependencies: FFmpeg is crucial
-RUN apk add --no-cache ffmpeg ca-certificates mailcap
+# Install runtime dependencies: FFmpeg and Python3 (for yt-dlp)
+RUN apk add --no-cache ffmpeg python3 curl ca-certificates mailcap
+
+# Install yt-dlp
+RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
+    chmod a+rx /usr/local/bin/yt-dlp
 
 # Copy the binary from the builder stage
 COPY --from=builder /app/downtube .
