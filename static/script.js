@@ -114,10 +114,7 @@ async function fetchInfo(type) {
             body: JSON.stringify({ url: url })
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Error al obtener info.');
-        }
+        if (!response.ok) throw new Error('Error al obtener info.');
 
         const data = await response.json();
 
